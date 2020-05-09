@@ -52,6 +52,7 @@ for i in range(0, m):
     x, y = map(float, input().split())
     xdata.append(x)
     ydata.append(y)
+r = int(input("Round the results to how many decimals ? : "))
 
 FL = [] 
 for i in range(0, n):
@@ -64,11 +65,11 @@ if 3 == n:
                     [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2]))]])
     b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2]))])
     x = np.linalg.solve(a, b)
-    print("According to linear regression the Best fit is : "+Function[0]+"="+str(x[0])+Function[1]+'+'+str(x[1])+Function[2]) #The best fit.
+    print("According to linear regression the Best fit is : "+Function[0]+"="+str(round(x[0],r))+Function[1]+'+'+str(round(x[1],r))+Function[2]) #The best fit.
 if 4 == n:
     a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[1],FL[3]))],
                     [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2])),np.sum(np.multiply(FL[2],FL[3]))],
                     [np.sum(np.multiply(FL[1],FL[3])),np.sum(np.multiply(FL[2],FL[3])),np.sum(np.multiply(FL[3],FL[3]))]])
     b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2])),np.sum(np.multiply(FL[0],FL[3]))])
     x = np.linalg.solve(a, b)
-    print("According to linear regression the Best fit is : "+Function[0]+"="+str(x[0])+Function[1]+'+'+str(x[1])+Function[2]+'+'+str(x[2])+Function[3]) #The best fit.
+    print("According to linear regression the Best fit is : "+Function[0]+"="+str(round(x[0],r))+Function[1]+'+'+str(round(x[1],r))+Function[2]+'+'+str(round(x[2],r))+Function[3]) #The best fit.
