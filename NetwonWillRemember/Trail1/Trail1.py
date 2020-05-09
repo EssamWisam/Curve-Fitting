@@ -33,11 +33,13 @@ from sympy.abc import x, y
 import numpy as np
 from numpy import log
 # Entering the functions
+Function=[]
 SympF = []
 F = []
 n = int(input("Please enter the number of terms in the general regression formula (include both RHS and LHS) : "))
 for i in range(0, n):
-    SympF.append(sympy.sympify(input("Insert your functions : \n"))) #The first function is that on the RHS (y)
+    Function.append(input("Insert your functions : \n"))
+    SympF.append(sympy.sympify(Function[i])) #The first function is that on the RHS (y)
     F.append(sympy.lambdify([x, y], SympF[i]))
 
 # Entering Points
@@ -57,12 +59,16 @@ for i in range(0, n):
     for j in range(0, m): 
         Z.append(F[i](xdata[j], ydata[j])) 
     FL.append(Z) #FL contains a sublist for each function, this sublist is the result from plugging each xdata and ydata into the function
-
-
-    #General Form for 3x3 (solving the system):
-a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[1],FL[3]))],
+if 3 == n:
+    a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2]))],
+                    [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2]))]])
+    b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2]))])
+    x = np.linalg.solve(a, b)
+    print("According to linear regression the Best fit is : "+Function[0]+"="+str(x[0])+Function[1]+'+'+str(x[1])+Function[2]) #The best fit.
+if 4 == n:
+    a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[1],FL[3]))],
                     [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2])),np.sum(np.multiply(FL[2],FL[3]))],
                     [np.sum(np.multiply(FL[1],FL[3])),np.sum(np.multiply(FL[2],FL[3])),np.sum(np.multiply(FL[3],FL[3]))]])
-b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2])),np.sum(np.multiply(FL[0],FL[3]))])
-x = np.linalg.solve(a, b)
-print(x) #The best fit.
+    b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2])),np.sum(np.multiply(FL[0],FL[3]))])
+    x = np.linalg.solve(a, b)
+    print("According to linear regression the Best fit is : "+Function[0]+"="+str(x[0])+Function[1]+'+'+str(x[1])+Function[2]+'+'+str(x[2])+Function[3]) #The best fit.
