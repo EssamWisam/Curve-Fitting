@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib
 from scipy.optimize import curve_fit
 import numpy as np
 from numpy import *
@@ -29,10 +30,16 @@ from numpy import *
 
 #This is an initial version for a function that applies the general regression formula
 import sympy# We shouldn't import everything
-from sympy.abc import x, y
+from sympy.abc import x,y
 import numpy as np
 from numpy import log
+from sympy import symbols
 # Entering the functions
+from numpy import arange, meshgrid, sqrt
+
+
+
+
 Function=[]
 SympF = []
 F = []
@@ -60,16 +67,28 @@ for i in range(0, n):
     for j in range(0, m): 
         Z.append(F[i](xdata[j], ydata[j])) 
     FL.append(Z) #FL contains a sublist for each function, this sublist is the result from plugging each xdata and ydata into the function
+
+    #Solving the general matrix for the coefficients
 if 3 == n:
     a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2]))],
                     [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2]))]])
     b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2]))])
-    x = np.linalg.solve(a, b)
-    print("According to linear regression the Best fit is : "+Function[0]+"="+str(round(x[0],r))+Function[1]+'+'+str(round(x[1],r))+Function[2]) #The best fit.
+    Sol = np.linalg.solve(a, b)
+    print("According to linear regression the Best fit is : "+Function[0]+"="+str(round(Sol[0],r))+Function[1]+'+'+str(round(Sol[1],r))+Function[2])
+    #Graph:
+    from sympy import symbols
+    from sympy.plotting import plot, plot3d, PlotGrid
+    x, y = symbols('x, y')
+    p1 = plot(Sol[0]*SympF[1]+ Sol[1]*SympF[2], (x, xdata[0], xdata[m-1])) #Plots F(y) vs X
+    
 if 4 == n:
     a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[1],FL[3]))],
                     [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2])),np.sum(np.multiply(FL[2],FL[3]))],
                     [np.sum(np.multiply(FL[1],FL[3])),np.sum(np.multiply(FL[2],FL[3])),np.sum(np.multiply(FL[3],FL[3]))]])
     b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2])),np.sum(np.multiply(FL[0],FL[3]))])
-    x = np.linalg.solve(a, b)
-    print("According to linear regression the Best fit is : "+Function[0]+"="+str(round(x[0],r))+Function[1]+'+'+str(round(x[1],r))+Function[2]+'+'+str(round(x[2],r))+Function[3]) #The best fit.
+    Sol = np.linalg.solve(a, b)
+    print("According to linear regression the Best fit is : "+Function[0]+"="+str(round(Sol[0],r))+Function[1]+'+'+str(round(Sol[1],r))+Function[2]+'+'+str(round(Sol[2],r))+Function[3]) #The best fit.
+    from sympy import symbols
+    from sympy.plotting import plot, plot3d, PlotGrid
+    x, y = symbols('x, y')
+    p1 = plot(Sol[0]*SympF[1]+ Sol[1]*SympF[2]+Sol[2]*SympF[3], (x, xdata[0], xdata[m-1])) #Plots F(y) vs X
