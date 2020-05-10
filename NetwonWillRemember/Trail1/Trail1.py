@@ -22,27 +22,24 @@ def Linearized_Regression(xdata, ydata, Function,r):
         for j in range(0, len(xdata)):  #this one makes a new list by plugging each xdata, ydata for each function
             Z.append(F[i](xdata[j], ydata[j])) 
         FL.append(Z) #FL contains a sublist for each function, this sublist is the result from plugging each xdata and ydata into the function
+        n=len(F)
+    a = np.empty((n-1,n-1))
+    b = np.empty((n-1,1))
+    for i in range(1,n):
+        for j in range(1,n):
+            a[i-1][j-1] = np.sum(np.multiply(FL[i],FL[j]))
+        b[i-1][0]= np.sum(np.multiply(FL[0],FL[i]))
+    Sol=np.round(np.transpose(np.linalg.solve(a, b)),r) #receiving the list, making it horizontal then rounding each element
+    Solution = []
+    for sublist in Sol: #Flattening the list ( from [[ ]] to [ ])
+        for item in sublist:
+            Solution.append(item)
+    StringSol = [str(c) for c in Solution ] #converting each constant to a string
+    LHS=Function.pop(0) #removing the LHS
+    rhs=[' * '.join(x) for x in zip(StringSol, Function)]#multiplying the constants and the functions element wise
+    RHS=(" + ".join(str(x) for x in rhs))
 
-    if 3 == len(F):
-        a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2]))],#Setting up the matrices
-                        [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2]))]])
-        b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2]))])
-        Sol = np.linalg.solve(a, b)# solving the general equation
-        Solution="According to linear regression the Best fit is : "+Function[0]+"="+str(round(Sol[0],r))+'('+Function[1]+')'+'+'+str(round(Sol[1],r))+'('+Function[2]+')'
-        #Graph
-        #x, y = symbols('x, y')
-       # p1 = plot(Sol[0]*SympF[1]+ Sol[1]*SympF[2], (x, xdata[0], xdata[len(xdata)-1])) 
-        return Sol[0], Sol[1], 0, Solution
-    if 4 == len(F): #doing the same for 3x3 matrices
-        a = np.array([[np.sum(np.multiply(FL[1],FL[1])),np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[1],FL[3]))],
-                        [np.sum(np.multiply(FL[1],FL[2])),np.sum(np.multiply(FL[2],FL[2])),np.sum(np.multiply(FL[2],FL[3]))],
-                        [np.sum(np.multiply(FL[1],FL[3])),np.sum(np.multiply(FL[2],FL[3])),np.sum(np.multiply(FL[3],FL[3]))]])
-        b = np.array([np.sum(np.multiply(FL[0],FL[1])),np.sum(np.multiply(FL[0],FL[2])),np.sum(np.multiply(FL[0],FL[3]))])
-        Sol = np.linalg.solve(a, b)
-        Solution="According to linear regression the Best fit is : "+Function[0]+"="+str(round(Sol[0],r))+'('+Function[1]+')'+'+'+str(round(Sol[1],r))+'('+Function[2]+')'+'+'+str(round(Sol[2],r))+'('+Function[3]+')'
-        #x, y = symbols('x, y')
-        #p1 = plot(Sol[0]*SympF[1]+ Sol[1]*SympF[2]+Sol[2]*SympF[3], (x, xdata[0], xdata[len(xdata)-1])) #Y vs x
-        return Sol[0], Sol[1], Sol[2], Solution
+    return LHS,RHS,StringSol #LHS and RHS are just what's actually needed
 
 
 def Nonlinear_Regression(xdata,ydata,NonlinearFunction): #takes x,y lists and a nonlinear function string
@@ -89,8 +86,8 @@ def main():
         Function=[]
         for i in range(0, n):
             Function.append(input("Insert your functions Y, X1, X2... : \n"))
-        a,b,c,Solution=Linearized_Regression(xdata, ydata, Function,r)
-        print(Solution);
+        LHS,RHS,Constants=Linearized_Regression(xdata, ydata, Function,r)
+        print(LHS,'=',RHS);
 
 main()
 
