@@ -5,7 +5,6 @@ from numpy import *
 import sympy
 from sympy.abc import x,y
 from sympy import symbols
-from sympy.plotting import plot
 
 
 def Linearized_Regression(xdata, ydata, Function,r):
@@ -84,7 +83,7 @@ def Surface_Fit_Beta(xdata, ydata, zdata, Function,r):
 
 def Nonlinear_Regression(xdata,ydata,NonlinearFunction): #takes x,y lists and a nonlinear function string
   F= lambda x,a,b,c: eval(NonlinearFunction)
-  Constants, Covariance = curve_fit(NonlinearFunction, xdata, ydata) #we don't need to show the covariance matrix
+  Constants, Covariance = curve_fit(F, xdata, ydata) #we don't need to show the covariance matrix
   return Constants[0],Constants[1],Constants[2] #this contains a,b,c if the former function doesn't have 'c' then it takes it as one (the initial guess)
 
 
@@ -92,7 +91,7 @@ def Nonlinear_Plot(xdata,ydata,NonlinearFunction,a,b,c): #Unstable, keeps giving
     F= lambda x,a,b,c: eval(NonlinearFunction)
     plt.figure(figsize=(6, 4))
     plt.scatter(xdata, ydata, label='Data')
-    plt.plot(xdata, NonlinearFunction(xdata, a, b,c), label='Agmad Fit')
+    plt.plot(xdata, F(xdata, a, b,c), label='Agmad Fit')
     plt.legend(loc='best')
     plt.show()
 
@@ -130,18 +129,17 @@ def TrueError(ydata):
 
 def main():
     #Picking a choice:
-    Choice=input("""Type \"N\" to curve fit using nonlinear regression, \"L\" for linear regression, \"P\" for popular linear regression forms and 
-\"S\" for surface fitting through linear regression : """)
+    Choice=input("Type \"N\" to curve fit using nonlinear regression, \"L\" for linear regression, \"P\" for popular linear regression forms and \"S\" for surface fitting through linear regression : ")
     r = int(input("Round the results to how many decimals ? :\n "))
     if(Choice=='N' or Choice=='n'):
           xdata,ydata=Input_2D()
           NonlinearFunction = input("Type in the Nonlinear Function : \n")
-          A,B,C=Nonlinear_Regression(xdata,ydata,F)
+          A,B,C=Nonlinear_Regression(xdata,ydata,NonlinearFunction)
           if (C==1): #The initial guess is as it is; the given function doesn't involve in c
               print('\n', '[a b] for the best fit= ', '['+str(round(A,r)) +'   '+str(round(B,r))+ ']' ,'\n')
           else:
               print('\n', '[a b c] for the best fit= ', '['+str(round(A,r)) +'   '+str(round(B,r))+'   '+str(round(C,r))+ ']' ,'\n')
-          Nonlinear_Plot(xdata, ydata, F,A,B,C)
+          Nonlinear_Plot(xdata, ydata, NonlinearFunction,A,B,C)
     elif(Choice=='L' or Choice=='l'):
         xdata,ydata=Input_2D()
         n = int(input("Type in the no. of functions in your linearized form Ex. Sin(x/y)=a*(x^2)+b*tan(x)+c/x involves 4 functions : "))
