@@ -48,6 +48,39 @@ def Linearized_Regression(xdata, ydata, Function,r):
 
     return LHS,RHS,StringSol,Sr #LHS and RHS are just what's actually needed
 
+def Surface_Fit_Beta(xdata, ydata, zdata, Function,r):
+    SympF = [] #Contains the functions in Sympy form
+    F = [] #contains the function in classic form
+    x, y, z = symbols('x, y, z')
+    for i in range(0,len(Function)): #converting the string functions into a suitable form
+        SympF.append(sympy.sympify(Function[i])) #The first function is that on the RHS (y)
+        F.append(sympy.lambdify([x, y,z], SympF[i]))
+
+    FL = []
+    for i in range(0,len(F)): #this for loop goes through each function
+        Z = [] #temporary list
+        for j in range(0, len(xdata)):  #this one makes a new list by plugging each xdata, ydata for each function
+            Z.append(F[i](xdata[j], ydata[j], zdata[j]))
+        FL.append(Z) #FL contains a sublist for each function, this sublist is the result from plugging each xdata,ydata,zdata into the function
+        n=len(F)
+    a = np.empty((n-1,n-1))
+    b = np.empty((n-1,1))
+    for i in range(1,n):
+        for j in range(1,n):
+            a[i-1][j-1] = np.sum(np.multiply(FL[i],FL[j]))
+        b[i-1][0]= np.sum(np.multiply(FL[0],FL[i]))
+    Sol=np.round(np.transpose(np.linalg.solve(a, b)),r) #receiving the list, making it horizontal then rounding each element
+    Solution = []
+    for sublist in Sol: #Flattening the list ( from [[ ]] to [ ])
+        for item in sublist:
+            Solution.append(item)
+    StringSol = [str(c) for c in Solution ] #converting each constant to a string
+    LHS=Function.pop(0) #removing the LHS
+    rhs=[' * '.join(x) for x in zip(StringSol, Function)]#multiplying the constants and the functions element wise
+    RHS=(" + ".join(str(x) for x in rhs))
+
+    return LHS,RHS,StringSol #LHS and RHS are just what's actually needed
+
 
 def Nonlinear_Regression(xdata,ydata,NonlinearFunction): #takes x,y lists and a nonlinear function string
   F= lambda x,a,b,c: eval(NonlinearFunction)
@@ -63,11 +96,7 @@ def Nonlinear_Plot(xdata,ydata,NonlinearFunction,a,b,c): #Unstable, keeps giving
     plt.legend(loc='best')
     plt.show()
 
-
-
-def main():
-
-    #Entering data Points
+def Input_2D():
     xdata = []
     ydata = []
     n = int(input("Type in the no. of points : "))
@@ -76,16 +105,36 @@ def main():
         x,y = map(float, input().split()) # splits a given input 'a b' , maps 'a' in x and 'b' in y
         xdata.append(x) #filling the x,y lists
         ydata.append(y)
-    r = int(input("Round the results to how many decimals ? :\n "))
+    return xdata,ydata
+
+def Input_3D():
+    xdata = []
+    ydata = []
+    zdata= []
+    n = int(input("Type in the no. of points : "))
+    print('Insert each point as space seperated x & y & z')
+    for i in range(0, n):
+        x,y,z = map(float, input().split()) # splits a given input 'a b' , maps 'a' in x and 'b' in y
+        xdata.append(x) #filling the x,y lists
+        ydata.append(y)
+        zdata.append(z)
+    return xdata,ydata,zdata
+
+def TrueError(ydata):
     TrueError=[]
     ydata_Avg = (np.sum(ydata))/len(ydata)
     for y in ydata:
         TrueError.append((y-ydata_Avg)**2)
     St = round(np.sum(TrueError),r)
+    return St
+
+def main():
     #Picking a choice:
     Choice=input("""Type \"N\" to curve fit using nonlinear regression, \"L\" for linear regression, \"P\" for popular linear regression forms and 
 \"S\" for surface fitting through linear regression : """)
+    r = int(input("Round the results to how many decimals ? :\n "))
     if(Choice=='N' or Choice=='n'):
+          xdata,ydata=Input_2D()
           NonlinearFunction = input("Type in the Nonlinear Function : \n")
           A,B,C=Nonlinear_Regression(xdata,ydata,F)
           if (C==1): #The initial guess is as it is; the given function doesn't involve in c
@@ -94,6 +143,7 @@ def main():
               print('\n', '[a b c] for the best fit= ', '['+str(round(A,r)) +'   '+str(round(B,r))+'   '+str(round(C,r))+ ']' ,'\n')
           Nonlinear_Plot(xdata, ydata, F,A,B,C)
     elif(Choice=='L' or Choice=='l'):
+        xdata,ydata=Input_2D()
         n = int(input("Type in the no. of functions in your linearized form Ex. Sin(x/y)=a*(x^2)+b*tan(x)+c/x involves 4 functions : "))
         Function=[]
         for i in range(0, n):
@@ -101,9 +151,18 @@ def main():
         LHS,RHS,Constants,Sr=Linearized_Regression(xdata, ydata, Function,r)
         print(LHS,'=',RHS);
         print("Regression Error(Sr)= ",Sr);
-        print("True Error(St)= ", St);
+        print("True Error(St)= ", TrueError(ydata));
         corrolation_coff=round(sqrt((St-Sr)/St),r)
         print("Corrolation Coffecient(r)= ", corrolation_coff);
+    elif(Choice=='s' or Choice=='S'):
+        xdata,ydata,zdata=Input_3D()
+        n = int(input("""Type in the no. of functions, Ex. the paraboloid : Z= f(x, y) = A * x^2 +B* x*y + C*y^2 + D*x + E*y + H corresponds to seven functions  z,x^2,x*y,y^2,x,y,1 : \n"""))
+        Function=[]
+        for i in range(0, n):
+            Function.append(input("Insert your functions : \n"))
+        LHS,RHS,Constants=Surface_Fit_Beta(xdata,ydata,zdata,Function,r);
+        print(LHS,'=',RHS);
+
 
 
 main()
