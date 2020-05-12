@@ -179,35 +179,50 @@ def TrueError(ydata, r):
     return St
 
 
-def PopualrForms():
-    formulas = {"linear": ["y", "x", "1"],
-                "quadratic": ["y", 'x**2', 'x', "1"],
-                "exponential": ["ln(y)", "x", "1"],
-                "logarithmic": ["y", "ln(x)", "1"],
-                "reciprocal": ['1/y', 'x', '1'],
-                "power": ['log(y)', 'log(x)', '1']}
-    forms = ["linear", "quadratic", "exponential", " logarithmic", " reciprocal", "power"]
-    xdata, ydata = Input_2D()
-    errors = []
+def PopularForms(xdata, ydata, r):
+    formulas = {"linear": ["y", "1", "x"],
+                "quadratic": ["y", "1","x","x**2"],
+                "cubic": ["y", "1", "x", "x**2", "x**3"],
+                "exponential": ["ln(y)", "1", "x"],
+                "logarithmic": ["y", "1", "ln(x)"],
+                "reciprocal": ["1/y", "1", "x"],
+                "power": ["log(y)", "1", "log(x)"]}
+    forms = ["linear", "quadratic", "cubic", "exponential", "logarithmic", "reciprocal", "power"]
+    LHS = [] #holds the lhs for all possible forms
+    RHS = [] #holds the lhs for all possible forms
+    Str_Sol = [] #holds the constants for all possible forms
+    reg_errors = [] #holds the constants for all possible forms
+    str_equation = "" #holds a string representing the best-fitted equation chosen from the upove formulas
     for n in formulas:
-        lhs, rhs, sol, sr = Linearized_Regression(xdata, ydata, formulas.get(n), 10)
-        errors.append(sr)
-    ind = errors.index(min(errors))
-    print("your function is in the family of " + forms[ind] + " functions")
-
+        lhs, rhs, str_sol, sr = Linearized_Regression(xdata, ydata, formulas.get(n), r)
+        LHS.append(lhs)
+        RHS.append(rhs)
+        Str_Sol.append(str_sol)
+        reg_errors.append(sr)
+    ind = reg_errors.index(min(reg_errors))
+    if (ind == 3):
+        #y=ae^(bx), Str_Sol[3] = ["ln(a)","b"]
+        str_equation = "y = " + str(round(exp(float(Str_Sol[ind][0])),r)) + " * e^(" + Str_Sol[ind][1] + " * x)"
+    elif (ind == 5):
+        #y=1/(a+bx), RHS[5] = "a+bx"
+        str_equation = "y = 1/("+RHS[ind]+")"
+    elif (ind == 6):
+        # y=a*x^(b),  Str_Sol[6] = ["ln(a)","b"]
+        str_equation = "y = " + str(round(exp(float(Str_Sol[ind][0])),r)) + " * x^(" + Str_Sol[ind][1] + ")"
+    else:
+        #The linearized form is the original form itself
+        str_equation = LHS[ind] + " = " + RHS[ind]
+    return str_equation,forms[ind],reg_errors[ind]
 
 def main():
     repeat = True
     while (repeat):
-        mode = input("Type 'G' to guess the function , or Type 'N' to insert your own ")
-        if (mode.upper() == 'G'):
-            PopualrForms()
-        else:
             # Picking a choice:
             Choice = input(
                 "Type \"N\" to curve fit using nonlinear regression, \"L\" for linear regression, \"P\" for popular linear regression forms and \"S\" for surface fitting through linear regression : ")
+            Choice=Choice.upper()
             r = int(input("Round the results to how many decimals ? :\n "))
-            if (Choice == 'N' or Choice == 'n'):
+            if (Choice == 'N'):
                 xdata, ydata = Input_2D()
                 NonlinearFunction = input("Type in the Nonlinear Function : \n")
                 A, B, C = Nonlinear_Regression(xdata, ydata, NonlinearFunction)
@@ -218,7 +233,7 @@ def main():
                     print('\n', '[a b c] for the best fit= ',
                           '[' + str(round(A, r)) + '   ' + str(round(B, r)) + '   ' + str(round(C, r)) + ']', '\n')
                 Nonlinear_Plot(xdata, ydata, NonlinearFunction, A, B, C)
-            elif (Choice == 'L' or Choice == 'l'):
+            elif (Choice == 'L'):
                 xdata, ydata = Input_2D()
                 n = int(input(
                     "Type in the no. of functions in your linearized form Ex. Sin(x/y)=a*(x^2)+b*tan(x)+c/x involves 4 functions : "))
@@ -233,7 +248,7 @@ def main():
                 corrolation_coeff = round(sqrt((abs(St - Sr)) / St), r)
                 print("Corrolation Coeffecient(r)= ", corrolation_coeff);
                 Plot_2D_RHS(xdata, ydata, RHS, LHS)
-            elif (Choice == 's' or Choice == 'S'):
+            elif (Choice == 'S'):
                 xdata, ydata, zdata = Input_3D()
                 n = int(input(
                     """Type in the no. of functions, Ex. the paraboloid : Z= f(x, y) = A * x^2 +B* x*y + C*y^2 + D*x + E*y + H corresponds to seven functions  z,x^2,x*y,y^2,x,y,1 : \n"""))
@@ -243,12 +258,23 @@ def main():
                 LHS, RHS, Constants = Surface_Fit_Beta(xdata, ydata, zdata, Function, r);
                 print(LHS, '=', RHS);
                 Plot_3D_RHS(xdata, ydata, zdata, RHS)
-        again = input("Do you want another try? type yes or no")
-        if (again.lower() == "yes"):
-            repeat = True
-        else:
-            repeat = False
+            elif (Choice == 'P'):
+                xdata, ydata = Input_2D()
+                str_equation, formula_Family, Sr = PopularForms(xdata, ydata, r)
+                print("your function is in the family of " + formula_Family + " functions")
+                print(str_equation)
+                print("Regression Error(Sr)= ", Sr);
+                St = TrueError(ydata, r);
+                print("True Error(St)= ", St);
+                corrolation_coeff = round(sqrt((abs(St - Sr)) / St), r)
+                print("Corrolation Coeffecient(r)= ", corrolation_coeff);
 
-
+            else:
+                print("You entered an invalid symbol")
+            again = input("Do you want another try? type yes or no")
+            if (again.lower() == "yes"):
+                repeat = True
+            else:
+                repeat = False
 main()
 
