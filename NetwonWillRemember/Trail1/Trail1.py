@@ -147,9 +147,10 @@ def Nonlinear_Regression(xdata,ydata,NonlinearFunction,r): #takes x,y lists and 
   #,(e,round(C[4],r)),(f,round(C[5],r)),(g,round(C[6],r)),
                      #(h,round(C[7],r)),(i,round(C[8],r))])
   RegressionError = []
+  val=ydata.copy()
   for i in range(0,len(ydata)):
-      ydata[i] -= (Sol.subs(x,xdata[i])) #subtract each of the entries in the 1st sublist from each of the functions*constant in the RHS.
-  RegressionError.append(ydata[i]**2) # square at each time.
+      val[i] -= (Sol.subs(x,xdata[i])) #subtract each of the entries in the 1st sublist from each of the functions*constant in the RHS.
+  RegressionError.append(val[i]**2) # square at each time.
   Sr = round(np.sum(RegressionError),r) #Sr = Sum((Yi-Y(regression))^2) = Sum((Yi-Const1*X1i-Const2*X2i-......)^2)
   return str(Sol) ,Sr
 
@@ -167,9 +168,10 @@ def Nonlinear_Regression_d(xdata,ydata,NonlinearFunction,r): #takes x,y lists an
   #,(e,round(C[4],r)),(f,round(C[5],r)),(g,round(C[6],r)),
                      #(h,round(C[7],r)),(i,round(C[8],r))])
   RegressionError = []
+  val=ydata.copy()
   for i in range(0,len(ydata)):
-      ydata[i] -= (Sol.subs(x,xdata[i])) #subtract each of the entries in the 1st sublist from each of the functions*constant in the RHS.
-  RegressionError.append(ydata[i]**2) # square at each time.
+      val[i] -= (Sol.subs(x,xdata[i])) #subtract each of the entries in the 1st sublist from each of the functions*constant in the RHS.
+  RegressionError.append(val[i]**2) # square at each time.
   Sr = round(np.sum(RegressionError),r) #Sr = Sum((Yi-Y(regression))^2) = Sum((Yi-Const1*X1i-Const2*X2i-......)^2)
   return str(Sol) ,Sr
 
@@ -179,6 +181,7 @@ def Nonlinear_Plot(xdata,ydata,NonlinearFunction): #Unstable, keeps giving an er
     Function=sympy.sympify(NonlinearFunction)
     F=sympy.lambdify([x], Function)
     plt.figure(figsize=(6, 4))
+    print(ydata)
     plt.scatter(xdata, ydata, label='Data')
     xdata=np.linspace(min(xdata),max(xdata),10000)
     plt.plot(xdata, F(xdata), label='Best Fit')
@@ -268,7 +271,7 @@ def Curve_Family_Detective(xdata, ydata, r):
     else:
         #The linearized form is the original form itself
         str_equation = LHS[indm] + " = " + RHS[indm]
-    err_copy=reg_errors
+    err_copy=reg_errors.copy()
     err_copy.pop(indm);
 
     return str_equation,forms[indm],reg_errors[indm],round(np.std(err_copy),r)
@@ -290,6 +293,7 @@ def main():
                   if(Sol !=''):
                     print(Sol,'\n')
                     print("Regression Error(Sr)= ", Sr);
+                    print(ydata)
                     Nonlinear_Plot(xdata, ydata, Sol)
                   else:
                     print(" Levenberg-Marquardt requires a data set that has length larger than or equal to the no. of constants")
