@@ -1,4 +1,1 @@
-
-This code was adapted mainly from below link:
-
-https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
+This is part of a larger project, please check <a href='https://github.com/abdullahalshawafi/Mathemati_'> this </a> (In particular: Curve Fitting, Least Absolute Deviations, Log-Cosh Regression, Surface Interpolation and Surface Fitting)
