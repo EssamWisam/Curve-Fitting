@@ -1,5 +1,5 @@
 <div align='center'>
-     <a href=https://github.com/abdullahalshawafi/Mathemati_'>
+     <a href='https://github.com/abdullahalshawafi/Mathemati_'>
 <img src="/Logo For Dark.png" title="You need the dark theme. Now." height="100" >
      </a>
      </div>
